@@ -1,25 +1,20 @@
-// Único punto de acceso a IndexedDB. El resto de módulos no abre la base directamente.
+// Único punto de acceso a IndexedDB.
 
-// Nombre y versión de la base. Si cambia la estructura, hay que subir DB_VERSION.
 const DB_NAME = 'NotasDefinitivasDB';
 const DB_VERSION = 1;
 
-// Nombres de los almacenes, centralizados para evitar errores de escritura.
 export const STORES = {
-  USUARIOS: 'usuarios',   // llave: documento (texto, conserva ceros iniciales)
-  SESIONES: 'sesiones',   // llave: id (registro 'activa')
-  CALCULOS: 'calculos',   // llave: id autoincremental
+  USUARIOS: 'usuarios',
+  SESIONES: 'sesiones',
+  CALCULOS: 'calculos',
 };
 
-// Guarda la promesa para no abrir la base más de una vez.
 let dbPromise = null;
 
-// Comprueba si el navegador soporta IndexedDB (requisito de HU-04.1 CA-03).
 export function isIndexedDBSupported() {
   return typeof window !== 'undefined' && 'indexedDB' in window && window.indexedDB !== null;
 }
 
-// Abre la base de datos y crea los almacenes si no existen.
 export function abrirBaseDatos() {
   if (dbPromise) return dbPromise;
 
@@ -30,26 +25,27 @@ export function abrirBaseDatos() {
   dbPromise = new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-    // Solo se ejecuta cuando la base se crea o cambia de versión.
+    // Solo se ejecuta si la base es nueva o su versión es menor a DB_VERSION.
+    // oldVersion indica desde qué versión viene el navegador del estudiante.
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
+      const versionAnterior = event.oldVersion;
 
-      if (!db.objectStoreNames.contains(STORES.USUARIOS)) {
+      // Versión 1: creación inicial de los almacenes
+      if (versionAnterior < 1) {
         db.createObjectStore(STORES.USUARIOS, { keyPath: 'documento' });
-      }
-      if (!db.objectStoreNames.contains(STORES.SESIONES)) {
         db.createObjectStore(STORES.SESIONES, { keyPath: 'id' });
-      }
-      if (!db.objectStoreNames.contains(STORES.CALCULOS)) {
         db.createObjectStore(STORES.CALCULOS, { keyPath: 'id', autoIncrement: true });
       }
+
+      // Versión 2: sin cambios de estructura (se agregó definitivaExacta al registro,
+      // que no es un cambio de almacenes ni de llaves).
     };
 
     request.onsuccess = () => {
       const db = request.result;
 
-      // Si otra pestaña necesita actualizar la versión, esta conexión se cierra
-      // para no bloquearla. Luego, la próxima llamada volverá a abrir la base.
+      // Si otra pestaña necesita actualizar la versión, cerramos esta conexión.
       db.onversionchange = () => {
         db.close();
         dbPromise = null;
