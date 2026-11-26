@@ -40,7 +40,6 @@ async function ingresar() {
 
   try {
     const { nuevo } = await iniciarSesion(resultado.valor);
-    console.info(nuevo ? 'Usuario registrado' : 'Sesión recuperada', resultado.valor);
     mostrarVista('notas');
   } catch (error) {
     console.error('Error al iniciar sesión:', error);
