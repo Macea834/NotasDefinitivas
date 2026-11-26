@@ -77,3 +77,16 @@ button:focus-visible {
   outline: 3px solid #93c5fd;
   outline-offset: 2px;
 }
+
+.fila-evaluacion {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.75rem;
+}
+
+/* Resalta una nota fuera de 0.0 a 5.0 (FA-02) */
+.fuera-de-rango {
+  border: 2px solid var(--color-error);
+}

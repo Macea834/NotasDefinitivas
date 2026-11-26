@@ -1,4 +1,5 @@
 // Punto de entrada: conecta la interfaz con la lógica de acceso.
+import { generarFilas } from './notas.js';
 import { isIndexedDBSupported } from './db.js';
 import {
   validarDocumento,
@@ -46,6 +47,13 @@ async function ingresar() {
     mostrarAlerta('No fue posible iniciar la sesión. Intenta de nuevo.');
   }
 }
+
+// ... dentro del archivo, junto a los otros listeners:
+$('btn-generar').addEventListener('click', () => generarFilas($('cantidad').value));
+
+$('cantidad').addEventListener('keydown', (evento) => {
+  if (evento.key === 'Enter') generarFilas($('cantidad').value);
+});
 
 // Al cargar la página: si hay sesión activa y el usuario existe, va directo al panel.
 async function restaurarSesion() {
