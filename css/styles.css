@@ -1,0 +1,79 @@
+/* Estilos base. Se usan variables para cambiar colores en un solo lugar. */
+:root {
+  --color-fondo: #f5f6f8;
+  --color-texto: #1f2933;
+  --color-primario: #2563eb;
+  --color-error: #b91c1c;
+  --color-aprobado: #15803d;
+  --radio: 6px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--color-fondo);
+  color: var(--color-texto);
+}
+
+header {
+  padding: 1rem;
+  background: var(--color-primario);
+  color: #fff;
+}
+
+main {
+  max-width: 640px;
+  margin: 1.5rem auto;
+  padding: 0 1rem;
+}
+
+/* La clase oculta quita la vista del flujo; se controla desde JavaScript */
+.oculta {
+  display: none;
+}
+
+.vista {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: var(--radio);
+}
+
+label {
+  display: block;
+  margin-top: 1rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.25rem;
+  border: 1px solid #cbd2d9;
+  border-radius: var(--radio);
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--color-primario);
+  color: #fff;
+  border: none;
+  border-radius: var(--radio);
+  cursor: pointer;
+}
+
+/* Alerta de error: se muestra solo cuando tiene texto */
+.alerta {
+  color: var(--color-error);
+  min-height: 1.2rem;
+}
+
+/* Foco visible para navegación con teclado */
+input:focus-visible,
+button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}

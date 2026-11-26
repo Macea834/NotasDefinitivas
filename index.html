@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!-- Documento base de la aplicación. Vercel lo sirve como página principal. -->
+<html lang="es">
+<head>
+  <!-- Codificación para caracteres como ñ y acentos -->
+  <meta charset="UTF-8">
+  <!-- Escala la página en celulares -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cálculo de Notas Definitivas</title>
+  <!-- Ruta relativa: funciona en local y en Vercel sin cambios -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Cálculo de Notas Definitivas</h1>
+  </header>
+
+  <main>
+    <!-- Pantalla 1: acceso por documento (HU-1) -->
+    <section id="vista-acceso" class="vista">
+      <h2>Ingreso</h2>
+      <label for="documento">Número de documento</label>
+      <input id="documento" type="text" inputmode="numeric" autocomplete="off">
+      <button id="btn-ingresar" type="button">Ingresar</button>
+      <p id="alerta-acceso" class="alerta" role="alert"></p>
+    </section>
+
+    <!-- Pantalla 2: panel de notas (HU-2 y HU-3.1), oculta hasta iniciar sesión -->
+    <section id="vista-notas" class="vista oculta">
+      <h2>Panel de notas</h2>
+      <label for="cantidad">Cantidad de notas</label>
+      <input id="cantidad" type="number" step="1" min="1" max="20">
+      <button id="btn-generar" type="button">Generar</button>
+      <div id="contenedor-evaluaciones"></div>
+      <p>Porcentaje acumulado: <span id="acumulado">0</span>%</p>
+      <div id="alertas-notas" class="alerta" role="alert"></div>
+      <button id="btn-calcular" type="button">Calcular</button>
+      <p id="resultado" aria-live="polite"></p>
+      <button id="btn-historial" type="button">Ver historial</button>
+    </section>
+
+    <!-- Pantalla 3: historial (HU-3.3), oculta por defecto -->
+    <section id="vista-historial" class="vista oculta">
+      <h2>Historial</h2>
+      <div id="contenedor-historial"></div>
+      <button id="btn-volver" type="button">Volver al panel</button>
+    </section>
+  </main>
+
+  <!-- type="module" permite usar import/export en los archivos JS -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
