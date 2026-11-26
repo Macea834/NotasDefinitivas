@@ -1,25 +1,75 @@
-// Punto de entrada de la aplicación.
-// Los módulos de tipo "module" se ejecutan después de cargar el HTML,
-// por eso el DOM ya está disponible aquí.
-import { abrirBaseDatos, isIndexedDBSupported } from './db.js';
+// Punto de entrada: conecta la interfaz con la lógica de acceso.
+import { isIndexedDBSupported } from './db.js';
+import {
+  validarDocumento,
+  iniciarSesion,
+  obtenerSesionActiva,
+  usuarioExiste,
+} from './acceso.js';
 
-const alertaAcceso = document.getElementById('alerta-acceso');
+const $ = (id) => document.getElementById(id);
 
-async function iniciarApp() {
-  // Sin IndexedDB no hay forma de guardar datos: se informa y se detiene.
-  if (!isIndexedDBSupported()) {
-    alertaAcceso.textContent = 'Tu navegador no es compatible con IndexedDB. Usa una versión reciente de Chrome, Firefox, Edge o Safari.';
+const vistas = {
+  acceso: $('vista-acceso'),
+  notas: $('vista-notas'),
+  historial: $('vista-historial'),
+};
+
+// Muestra una sola vista y oculta las demás.
+function mostrarVista(nombre) {
+  for (const [clave, elemento] of Object.entries(vistas)) {
+    elemento.classList.toggle('oculta', clave !== nombre);
+  }
+}
+
+function mostrarAlerta(texto) {
+  $('alerta-acceso').textContent = texto;
+}
+
+// Flujo de HU-1: valida el documento, registra o recupera y muestra el panel.
+async function ingresar() {
+  mostrarAlerta('');
+
+  const resultado = validarDocumento($('documento').value);
+  if (!resultado.ok) {
+    mostrarAlerta(resultado.mensaje);
+    $('documento').focus();
     return;
   }
 
   try {
-    const db = await abrirBaseDatos();
-    // Prueba de esta fase: deben aparecer los tres almacenes.
-    console.info('Almacenes creados:', Array.from(db.objectStoreNames));
+    const { nuevo } = await iniciarSesion(resultado.valor);
+    console.info(nuevo ? 'Usuario registrado' : 'Sesión recuperada', resultado.valor);
+    mostrarVista('notas');
   } catch (error) {
-    console.error('Error al abrir IndexedDB:', error);
-    alertaAcceso.textContent = 'No fue posible iniciar la base de datos local.';
+    console.error('Error al iniciar sesión:', error);
+    mostrarAlerta('No fue posible iniciar la sesión. Intenta de nuevo.');
   }
 }
 
-iniciarApp();
+// Al cargar la página: si hay sesión activa y el usuario existe, va directo al panel.
+async function restaurarSesion() {
+  if (!isIndexedDBSupported()) {
+    mostrarAlerta('Tu navegador no es compatible con IndexedDB.');
+    return;
+  }
+
+  try {
+    const sesion = await obtenerSesionActiva();
+    if (sesion && (await usuarioExiste(sesion.documento))) {
+      mostrarVista('notas');
+    }
+  } catch (error) {
+    console.error('Error al restaurar la sesión:', error);
+    mostrarAlerta('No fue posible recuperar tu sesión.');
+  }
+}
+
+$('btn-ingresar').addEventListener('click', ingresar);
+
+// Enter en el campo también envía el formulario.
+$('documento').addEventListener('keydown', (evento) => {
+  if (evento.key === 'Enter') ingresar();
+});
+
+restaurarSesion();
